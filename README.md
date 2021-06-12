@@ -2,6 +2,11 @@
 
 Go line feed writer
 
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![made-with-Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](http://golang.org)
+[![GoDoc](https://godoc.org/github.com/karrick/golfw?status.svg)](https://godoc.org/github.com/karrick/golfw)
+[![GoReportCard](https://goreportcard.com/badge/github.com/karrick/golfw)](https://goreportcard.com/report/github.com/karrick/golfw)
+
 ## Description
 
 Library provides WriteCloser structure that is an io.WriteCloser that
@@ -53,28 +58,32 @@ $ for i in $(seq 1000); do cat 2600-h.htm >> 2600-h-1000.htm ; done
 ```
 
 I ran the benchmarks using
-(hyperfine)[https://github.com/sharkdp/hyperfine].
+[hyperfine](https://github.com/sharkdp/hyperfine).
 
 ```
-$ hyperfine --prepare 'rm -f *.log' --warmup 10 \
-            'cat 2600-h-1000.htm > stdout.log' \
-            'cat 2600-h-1000.htm | ./log-rotator'
+$ hyperfine --export-markdown ../../BENCHMARKS.md --prepare 'rm -f *.log' --warmup 10 'cat 2600-h-1000.htm > stdout.log' 'cat 2600-h-1000.htm | ./log-rotator'
 Benchmark #1: cat 2600-h-1000.htm > stdout.log
-  Time (mean ± σ):      3.949 s ±  0.042 s    [User: 6.8 ms, System: 3865.6 ms]
-  Range (min … max):    3.898 s …  4.037 s    10 runs
+  Time (mean ± σ):      3.921 s ±  0.025 s    [User: 8.3 ms, System: 3840.0 ms]
+  Range (min … max):    3.891 s …  3.964 s    10 runs
 
 Benchmark #2: cat 2600-h-1000.htm | ./log-rotator
-  Time (mean ± σ):      4.482 s ±  0.050 s    [User: 237.0 ms, System: 6147.5 ms]
-  Range (min … max):    4.373 s …  4.559 s    10 runs
+  Time (mean ± σ):      4.507 s ±  0.062 s    [User: 239.4 ms, System: 6198.0 ms]
+  Range (min … max):    4.379 s …  4.595 s    10 runs
 
 Summary
   'cat 2600-h-1000.htm > stdout.log' ran
-    1.13 ± 0.02 times faster than 'cat 2600-h-1000.htm | ./log-rotator'
+    1.15 ± 0.02 times faster than 'cat 2600-h-1000.htm | ./log-rotator'
 ```
 
-Using mean run times, 4.482 seconds divided by 3.949 seconds is less
-than 14% pipeline penalty using golfw.WriteCloser on top of
-lumberjack.Logger compared to merely using the `cat` UNIX utility.
+| Command | Mean [s] | Min [s] | Max [s] | Relative |
+|:---|---:|---:|---:|---:|
+| `cat 2600-h-1000.htm > stdout.log` | 3.911 ± 0.043 | 3.861 | 3.984 | 1.00 |
+| `cat 2600-h-1000.htm \| ./log-rotator` | 4.510 ± 0.050 | 4.431 | 4.611 | 1.15 ± 0.02 |
+
+Using mean run times, there is a 15% pipeline penalty using
+golfw.WriteCloser on top of lumberjack.Logger compared to merely using
+the `cat` UNIX utility, but shown below, the penalty from
+golfw.WriteCloser is between 1% and 5%.
 
 ### golfw.WriteCloser compared to io.Discard
 
