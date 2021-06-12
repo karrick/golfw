@@ -65,15 +65,6 @@ func (lbf *WriteCloser) Close() error {
 	return we
 }
 
-// flushCompleted writes all completed lines in buffer to underlying
-// io.WriteCloser. The final incomplete line will remain in the buffer.
-func (lbf *WriteCloser) flushCompleted(olen, dlen, index int) (int, error) {
-	if lbf.indexOfFinalNewline == -1 {
-		return 0, nil // buffer has no completed lines
-	}
-	return lbf.flush(olen, dlen, lbf.indexOfFinalNewline+1)
-}
-
 // flush flushes buffer to underlying io.WriteCloser, up to and including
 // specified index.
 func (lbf *WriteCloser) flush(olen, dlen, index int) (int, error) {
@@ -89,7 +80,7 @@ func (lbf *WriteCloser) flush(olen, dlen, index int) (int, error) {
 	// nb is the number new bytes from p that got written to file.
 	nb := nw - olen
 	if nb < 0 {
-		lbf.buf = lbf.buf[:(olen - nw)]
+		lbf.buf = lbf.buf[:-nb]
 		nb = 0
 	} else {
 		lbf.buf = lbf.buf[:0]
