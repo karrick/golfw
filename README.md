@@ -90,12 +90,11 @@ golfw.WriteCloser is between 1% and 5%.
 ### golfw.WriteCloser compared to io.Discard
 
 To determine how much overhead golfw.WriteCloser adds to a data
-pipeline, I created a benchmark file in `benchmarks/benchmark_test.go`
-to stream a megabyte of sequential bytes directly to io.Discard, and
-another benchmark that streams the same bytes through
-golfw.WriteCloser to the same io.Discard. On my development system,
-streaming through golfw.WriteCloser adds between 1% and 4% overhead to
-the pipeline.
+pipeline, I created a benchmark file `benchmark_test.go` to stream a
+megabyte of sequential bytes directly to io.Discard, and another
+benchmark that streams the same bytes through golfw.WriteCloser to
+io.Discard. On my development system, streaming through
+golfw.WriteCloser adds between 1% and 4% overhead to the pipeline.
 
 ```
 $ go test -bench=.
