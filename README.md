@@ -61,7 +61,9 @@ I ran the benchmarks using
 [hyperfine](https://github.com/sharkdp/hyperfine).
 
 ```
-$ hyperfine --export-markdown ../../BENCHMARKS.md --prepare 'rm -f *.log' --warmup 10 'cat 2600-h-1000.htm > stdout.log' 'cat 2600-h-1000.htm | ./log-rotator'
+$ hyperfine --export-markdown ../../BENCHMARKS.md --prepare 'rm -f *.log' --warmup 10 \
+            'cat 2600-h-1000.htm > stdout.log' \
+            'cat 2600-h-1000.htm | ./log-rotator'
 Benchmark #1: cat 2600-h-1000.htm > stdout.log
   Time (mean ± σ):      3.921 s ±  0.025 s    [User: 8.3 ms, System: 3840.0 ms]
   Range (min … max):    3.891 s …  3.964 s    10 runs
