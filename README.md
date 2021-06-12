@@ -43,7 +43,7 @@ func Example() error {
 
 I created a small log-rotator program in
 `examples/log-rotator/main.go` that uses composition to wrap
-(lumberjack.Logger)[github.com/natefinch/lumberjack] with
+[lumberjack.Logger](github.com/natefinch/lumberjack) with
 golfw.WriteCloser, and streamed 1000 copies of War and Peace through
 the UNIX `cat` utility and the resulting `log-rotator` program
 
