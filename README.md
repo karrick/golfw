@@ -10,49 +10,24 @@ io.WriteCloser on line feed boundaries.
 
 ## Example
 
+See a full example in the examples/log-rotator/ directory.
+
 ```Go
-package main
+func Example() error {
+    // Flush completed lines to os.Stdout at least every 512 bytes.
+    lf, err := golfw.NewWriteCloser(os.Stdout, 512)
+    if err != nil {
+        return err
+    }
 
-// Read from standard input, and writes to rotated logs.
+    // Give copy buffer some room.
+    _, rerr := io.CopyBuffer(lf, os.Stdin, make([]byte, 4096))
 
-import (
-	"fmt"
-	"io"
-	"os"
-	"path/filepath"
-
-	"github.com/karrick/golfw"
-	"github.com/natefinch/lumberjack"
-)
-
-const (
-	copyBufSize = 32768
-	lfwBufSize  = 16384
-)
-
-func main() {
-	lj := &lumberjack.Logger{
-		Filename: filepath.Base(os.Args[0]) + ".log",
-	}
-
-	lf, err := golfw.NewWriteCloser(lj, lfwBufSize)
-	if err != nil {
-		bail(err, 1)
-	}
-
-	_, rerr := io.CopyBuffer(lf, os.Stdin, make([]byte, copyBufSize))
-	cerr := lf.Close() // NOTE: Also closes underlying io.WriteCloser, namely lj.
-
-	if rerr != nil {
-		bail(rerr, 1)
-	}
-	if cerr != nil {
-		bail(cerr, 1)
-	}
-}
-
-func bail(err error, code int) {
-	fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
-	os.Exit(code)
+    // Clean up
+    cerr := lf.Close()
+    if rerr == nil {
+        return cerr
+    }
+    return rerr
 }
 ```

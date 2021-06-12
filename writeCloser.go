@@ -19,6 +19,24 @@ type WriteCloser struct {
 // threshold. Whenever the buffer is greater than the specified threshold, it
 // flushes the buffer, up to and including the final LF byte, to the underlying
 // io.WriteCloser.
+//
+//     func Example() error {
+//         // Flush completed lines to os.Stdout at least every 512 bytes.
+//         lf, err := golfw.NewWriteCloser(os.Stdout, 512)
+//         if err != nil {
+//             return err
+//         }
+//
+//         // Give copy buffer some room.
+//         _, rerr := io.CopyBuffer(lf, os.Stdin, make([]byte, 4096))
+//
+//         // Clean up
+//         cerr := lf.Close()
+//         if rerr == nil {
+//             return cerr
+//         }
+//         return rerr
+//     }
 func NewWriteCloser(iowc io.WriteCloser, flushThreshold int) (*WriteCloser, error) {
 	if flushThreshold <= 0 {
 		return nil, fmt.Errorf("cannot create WriteCloser when flushThreshold less than or equal to 0: %d", flushThreshold)
