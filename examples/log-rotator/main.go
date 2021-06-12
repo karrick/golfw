@@ -1,16 +1,3 @@
-# golfw
-
-Go line feed writer
-
-## Description
-
-Library provides WriteCloser structure that is an io.WriteCloser that
-buffers output to ensure it only emits bytes to the underlying
-io.WriteCloser on line feed boundaries.
-
-## Example
-
-```Go
 package main
 
 // Read from standard input, and writes to rotated logs.
@@ -55,4 +42,3 @@ func bail(err error, code int) {
 	fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
 	os.Exit(code)
 }
-```
