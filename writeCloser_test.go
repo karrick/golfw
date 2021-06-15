@@ -1060,7 +1060,7 @@ func TestWriteCloser(t *testing.T) {
 			})
 			ensureBuffer(t, output, "line 1\nline 2\n")
 		})
-		t.Run("buf not empty | buf single newline | at end | data single newline | not at end | flush | write error", func(t *testing.T) {
+		t.Run("buf not empty | buf single newline | at end | data single newline | not at end | flush | write error | no new bytes", func(t *testing.T) {
 			output := new(bytes.Buffer)
 			lbf, err := NewWriteCloser(gorill.NopCloseWriter(gorill.ShortWriter(output, 4)), 8)
 			ensureError(t, err)
@@ -1074,6 +1074,34 @@ func TestWriteCloser(t *testing.T) {
 				isShortWrite:        true,
 			})
 			ensureBuffer(t, output, "line")
+		})
+		t.Run("buf not empty | buf single newline | at end | data multiple newlines | at end | flush | write error | zero new bytes", func(t *testing.T) {
+			output := new(bytes.Buffer)
+			lbf, err := NewWriteCloser(gorill.NopCloseWriter(gorill.ShortWriter(output, 7)), 16)
+			ensureError(t, err)
+			ensureWrite(t, lbf, "line 1\n")
+
+			p := "line 2\nline 3\n"
+			ensureWriteResponse(t, lbf, p, wantState{
+				n:                   0,
+				indexOfFinalNewline: -1,
+				isShortWrite:        true,
+			})
+			ensureBuffer(t, output, "line 1\n")
+		})
+		t.Run("buf not empty | buf single newline | at end | data multiple newlines | at end | flush | write error | some new bytes", func(t *testing.T) {
+			output := new(bytes.Buffer)
+			lbf, err := NewWriteCloser(gorill.NopCloseWriter(gorill.ShortWriter(output, 12)), 16)
+			ensureError(t, err)
+			ensureWrite(t, lbf, "line 1\n")
+
+			p := "line 2\nline 3\n"
+			ensureWriteResponse(t, lbf, p, wantState{
+				n:                   5,
+				indexOfFinalNewline: -1,
+				isShortWrite:        true,
+			})
+			ensureBuffer(t, output, "line 1\nline ")
 		})
 
 		t.Run("buf not empty | buf single newline | not at end | data multiple newlines | at end", func(t *testing.T) {
