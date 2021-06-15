@@ -90,11 +90,13 @@ golfw.WriteCloser is between 1% and 5%.
 ### golfw.WriteCloser compared to io.Discard
 
 To determine how much overhead golfw.WriteCloser adds to a data
-pipeline, I created a benchmark file `benchmark_test.go` to stream a
+pipeline, I created a benchmark file `benchmark_test.go` to stream one
 megabyte of sequential bytes directly to io.Discard, and another
 benchmark that streams the same bytes through golfw.WriteCloser to
 io.Discard. On my development system, streaming through
-golfw.WriteCloser adds between 1% and 4% overhead to the pipeline.
+golfw.WriteCloser measured between 3% more efficient, and 4% less
+efficient than merely streaming through io.Discard, depending on the
+selected flush threshold.
 
 ```
 $ go test -bench=.
@@ -102,8 +104,8 @@ goos: linux
 goarch: amd64
 pkg: github.com/karrick/golfw
 cpu: AMD Ryzen Threadripper 3960X 24-Core Processor 
-BenchmarkDevNull-48        	       4	 271099505 ns/op
-BenchmarkWriteCloser-48    	       4	 278314647 ns/op
+BenchmarkWriteCloser-48    	       4	 278117669 ns/op
+BenchmarkDevNull-48        	       4	 286373981 ns/op
 PASS
-ok  	github.com/karrick/golfw	4.495s
+ok  	github.com/karrick/golfw	4.503s
 ```

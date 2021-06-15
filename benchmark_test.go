@@ -19,15 +19,15 @@ func benchmarkIt(b *testing.B, iowc io.WriteCloser) {
 	ensureError(b, err)
 }
 
-func BenchmarkWriteCloser(b *testing.B) {
+func BenchmarkDevNull(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		benchmarkIt(b, gorill.NopCloseWriter(io.Discard))
 	}
 }
 
-func BenchmarkDevNull(b *testing.B) {
+func BenchmarkWriteCloser(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		lfwc, err := NewWriteCloser(gorill.NopCloseWriter(io.Discard), 8)
+		lfwc, err := NewWriteCloser(gorill.NopCloseWriter(io.Discard), 128)
 		ensureError(b, err)
 		benchmarkIt(b, lfwc)
 	}
