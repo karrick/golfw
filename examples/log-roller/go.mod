@@ -1,4 +1,4 @@
-module github.com/karrick/golfw/examples/log-rotator
+module github.com/karrick/golfw/examples/log-roller
 
 go 1.16
 

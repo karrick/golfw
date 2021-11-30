@@ -9,7 +9,7 @@ import (
 // WriteCloser is an io.WriteCloser that buffers output to ensure it only emits
 // bytes to the underlying io.WriteCloser on line feed boundaries.
 type WriteCloser struct {
-	buf                 []byte
+	buf                 []byte // where we store accumulated bytes waiting for newline
 	iowc                io.WriteCloser
 	flushThreshold      int // flush on LF after buffer this size or larger
 	indexOfFinalNewline int // -1 when no newlines in buf
@@ -105,6 +105,6 @@ func (lbf *WriteCloser) Write(p []byte) (int, error) {
 	}
 
 	// Buffer larger than threshold, and has LF: write everything up to and
-	// including that LF.
+	// including that final LF.
 	return lbf.flush(olen, len(p), lbf.indexOfFinalNewline+1)
 }

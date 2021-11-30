@@ -22,23 +22,23 @@ func main() {
 		Filename: filepath.Base(os.Args[0]) + ".log",
 	}
 
-	lf, err := golfw.NewWriteCloser(lj, lfwBufSize)
-	if err != nil {
-		bail(err, 1)
+	lf, err1 := golfw.NewWriteCloser(lj, lfwBufSize)
+	if err1 != nil {
+		bail(1, err1)
 	}
 
-	_, rerr := io.CopyBuffer(lf, os.Stdin, make([]byte, copyBufSize))
-	cerr := lf.Close() // NOTE: Also closes underlying io.WriteCloser, namely lj.
+	_, err1 = io.CopyBuffer(lf, os.Stdin, make([]byte, copyBufSize))
+	err2 := lf.Close() // NOTE: Also closes underlying io.WriteCloser, namely lj.
 
-	if rerr != nil {
-		bail(rerr, 1)
+	if err1 != nil {
+		bail(1, err1)
 	}
-	if cerr != nil {
-		bail(cerr, 1)
+	if err2 != nil {
+		bail(1, err2)
 	}
 }
 
-func bail(err error, code int) {
+func bail(code int, err error) {
 	fmt.Fprintf(os.Stderr, "%s: %s\n", filepath.Base(os.Args[0]), err)
 	os.Exit(code)
 }
