@@ -3,8 +3,6 @@ package golfw
 import (
 	"io"
 	"testing"
-
-	"github.com/karrick/gorill"
 )
 
 func benchmarkIt(b *testing.B, iowc io.WriteCloser) {
@@ -21,13 +19,13 @@ func benchmarkIt(b *testing.B, iowc io.WriteCloser) {
 
 func BenchmarkDevNull(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		benchmarkIt(b, gorill.NopCloseWriter(io.Discard))
+		benchmarkIt(b, NopCloseWriter(io.Discard))
 	}
 }
 
 func BenchmarkWriteCloser(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		lfwc, err := NewWriteCloser(gorill.NopCloseWriter(io.Discard), 128)
+		lfwc, err := NewWriteCloser(NopCloseWriter(io.Discard), 128)
 		ensureError(b, err)
 		benchmarkIt(b, lfwc)
 	}
