@@ -15,7 +15,11 @@ io.WriteCloser on line feed boundaries.
 
 ## Example
 
-See a full example in the examples/log-rotator/ directory.
+Here is a very simple example that streams from standard input to
+standard output, but buffers input until at least 512 bytes read, and
+breaks only on newline characters.
+
+See a more practical example in the `examples/log-roller/` directory.
 
 ```Go
 func Example() error {
@@ -39,48 +43,69 @@ func Example() error {
 
 ## Benchmarks
 
+When running tests with benchmarks, I observe an approximate 8.6%
+overhead when writting to WriteCloser which writes to io.Discard, over
+just writing to io.Discard.
+
+```Bash
+go test -bench=.
+goos: linux
+goarch: amd64
+pkg: github.com/karrick/golfw
+BenchmarkDevNull-48        	       4	 273557676 ns/op
+BenchmarkWriteCloser-48    	       4	 297179524 ns/op
+PASS
+ok  	github.com/karrick/golfw	4.593s
+```
+
+Using either of the example programs to run the benchmarks requires
+the [hyperfine](https://github.com/sharkdp/hyperfine) program
+somewhere on your PATH.
+
 ### War and Peace
 
-I created a small log-rotator program in
-`examples/log-rotator/main.go` that uses composition to wrap
-[lumberjack.Logger](https://github.com/natefinch/lumberjack) with
-golfw.WriteCloser, and streamed 1000 copies of War and Peace through
-the UNIX `cat` utility and the resulting `log-rotator` program
+I created a small line-buffer program in `examples/line-buffer/` that
+can be used to benchmark the overhead that WriteCloser adds to a
+pipeline.
 
-I created an input file by creating a large 3.2 GiB file with 1000
-copies of War and Peace:
+cat is 1.20 times faster than gocat.
+gocat is 1.04 times faster than line-buffer.
+
+## Examples
+
+### log-roller
+
+I created a small log-roller program in `examples/log-roller/` that
+wraps [lumberjack.Logger](https://github.com/natefinch/lumberjack)
+with WriteCloser, and streams 1000 copies of War and Peace through the
+UNIX `cat` utility and the resulting `log-roller` program.
 
 ```
-$ cd examples/log-rotator
-$ go build
-$ wget https://www.gutenberg.org/files/2600/2600-h/2600-h.htm
-$ for i in $(seq 1000); do cat 2600-h.htm >> 2600-h-1000.htm ; done
+$ cd examples/line-buffer
+$ make bench
 ```
-
-I ran the benchmarks using
-[hyperfine](https://github.com/sharkdp/hyperfine).
 
 ```
 $ hyperfine --export-markdown ../../BENCHMARKS.md --prepare 'rm -f *.log' --warmup 10 \
             'cat 2600-h-1000.htm > stdout.log' \
-            'cat 2600-h-1000.htm | ./log-rotator'
+            'cat 2600-h-1000.htm | ./log-roller'
 Benchmark #1: cat 2600-h-1000.htm > stdout.log
   Time (mean ± σ):      3.921 s ±  0.025 s    [User: 8.3 ms, System: 3840.0 ms]
   Range (min … max):    3.891 s …  3.964 s    10 runs
 
-Benchmark #2: cat 2600-h-1000.htm | ./log-rotator
+Benchmark #2: cat 2600-h-1000.htm | ./log-roller
   Time (mean ± σ):      4.507 s ±  0.062 s    [User: 239.4 ms, System: 6198.0 ms]
   Range (min … max):    4.379 s …  4.595 s    10 runs
 
 Summary
   'cat 2600-h-1000.htm > stdout.log' ran
-    1.15 ± 0.02 times faster than 'cat 2600-h-1000.htm | ./log-rotator'
+    1.15 ± 0.02 times faster than 'cat 2600-h-1000.htm | ./log-roller'
 ```
 
 | Command | Mean [s] | Min [s] | Max [s] | Relative |
 |:---|---:|---:|---:|---:|
 | `cat 2600-h-1000.htm > stdout.log` | 3.911 ± 0.043 | 3.861 | 3.984 | 1.00 |
-| `cat 2600-h-1000.htm \| ./log-rotator` | 4.510 ± 0.050 | 4.431 | 4.611 | 1.15 ± 0.02 |
+| `cat 2600-h-1000.htm \| ./log-roller` | 4.510 ± 0.050 | 4.431 | 4.611 | 1.15 ± 0.02 |
 
 Using mean run times, there is a 15% pipeline penalty using
 golfw.WriteCloser on top of lumberjack.Logger compared to merely using

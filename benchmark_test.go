@@ -25,7 +25,7 @@ func BenchmarkDevNull(b *testing.B) {
 
 func BenchmarkWriteCloser(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		lfwc, err := NewWriteCloser(NopCloseWriter(io.Discard), 128)
+		lfwc, err := NewWriteCloser(NopCloseWriter(io.Discard), 512)
 		ensureError(b, err)
 		benchmarkIt(b, lfwc)
 	}

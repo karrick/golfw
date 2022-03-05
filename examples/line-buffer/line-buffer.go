@@ -17,24 +17,24 @@ import (
 )
 
 const (
-	copyBufSize = 32768
-	lfwBufSize  = 16384
+	copyBufSize = 512
+	lfwBufSize  = 512
 )
 
 func main() {
-	lf, err1 := golfw.NewWriteCloser(os.Stdout, lfwBufSize)
-	if err1 != nil {
-		bail(1, err1)
+	lfw, err := golfw.NewWriteCloser(os.Stdout, lfwBufSize)
+	if err != nil {
+		bail(1, err)
 	}
 
-	_, err1 = io.CopyBuffer(lf, os.Stdin, make([]byte, copyBufSize))
-	err2 := lf.Close() // NOTE: Also closes underlying io.WriteCloser.
+	_, err = io.CopyBuffer(lfw, os.Stdin, make([]byte, copyBufSize))
+	cerr := lfw.Close() // NOTE: Also closes underlying io.WriteCloser.
 
-	if err1 != nil {
-		bail(1, err1)
+	if err != nil {
+		bail(1, err)
 	}
-	if err2 != nil {
-		bail(1, err2)
+	if cerr != nil {
+		bail(1, cerr)
 	}
 }
 
